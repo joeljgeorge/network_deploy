@@ -1,0 +1,157 @@
+body {
+	height: 100%;
+	width: 100%;
+	margin: 0%;
+	padding: 0%;
+	overflow: hidden;
+}
+#left_column {
+	position: absolute;
+	height: 100%;
+	width: 25%;
+	margin: 0px;
+	top: 0%;
+	left: 0%;
+	border-right: 3px solid;
+	background-color: #cce6ff;
+	font-family: "Century Gothic";
+}
+#list_text {
+	position: absolute;
+	top: 15%;
+	margin-left: 0%;
+	width: 100%;
+	height: 70%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	font-family: Verdana;
+	list-style-type: none;
+	padding-left: 0;
+}
+#right_column {
+	position: absolute;
+	height: 100%;
+	width: 74.9%;
+	right: 0%;
+	font-family: "Century Gothic";
+	background-color: #ffe6e6;
+}
+#welcome_text {
+	position: absolute;
+	margin: 1%;
+}
+
+input[name=searchBar] {
+	position: absolute;
+	top: 5%;
+	width: 60%;
+	margin-left: 15%;
+}
+input[name=messageBox] {
+	position: absolute;
+	bottom: 10%;
+	height: 5%;
+	width: 80%;
+	margin-left: 10%;
+}
+#messageView {
+	position: absolute;
+	margin: 10%;
+	height: 65%;
+	width: 80%;
+	box-shadow: 0 0px 5px #888888;
+	background-color: white;
+	overflow: auto;
+	overflow-x: hidden;
+}
+#user_message {
+	position: absolute;
+	left: 0%;
+	top: 5%;
+	width: 90%;
+	word-wrap: break-word;
+}
+#messageBubble {
+	background-color: skyblue;
+	width: 100%;
+	height: 0%;
+	bottom: 0%;
+	margin: 5%;
+}
+.msg {
+	background-color: #b3e6ff;
+	padding-left: 5%;
+	padding-right: 5%;
+	padding-top: 2%;
+	padding-bottom: 2%;
+	margin: 2%;
+	width: 30%;
+}
+#message_content {
+	padding-left: 5%;
+}
+#logged_name {
+	position: absolute;
+	top: 1%;
+	right: 5%;
+	font-family: Verdana;
+}
+.active_convo {
+	position: absolute;
+	border: 0;
+	background: transparent;
+	background-color: #e6e6e6;
+	width: 100%;
+	font-family: Verdana;
+	font-size: 100%;
+	padding: 5%;
+	text-align: left;
+	height: 100%;
+}
+.convo_tab {
+	position: relative;
+	border: 1px solid black;
+	width: 100%;
+	height: 10vh;
+	margin-bottom: 1%;
+	box-shadow: 0 0px 5px #888888;
+}
+#header_text {
+	position: absolute;
+	top: 10%;
+	font-family: Verdana;
+	left: 1%;
+}
+#pm_button{
+	position: absolute;
+	bottom: 5%;
+	left: 1%;
+	height: 5%;
+	width: 45%;
+	border: 1px solid black;
+}
+
+#gc_button{
+	position: absolute;
+	bottom: 5%;
+	right: 1%;
+	height: 5%;
+	width: 45%;
+	border: 1px solid black;
+}
+
+.unread_message_alert{
+	position: absolute; 
+	height: 3vh; 
+	width: 3vh; 
+	right: 5%; 
+	top: 30%; 
+	background-color: green; 
+	border-radius: 50%; 
+	display: none;
+}
+
+#no_active_convos_text{
+	position: absolute; 
+	top: 20%;
+}
