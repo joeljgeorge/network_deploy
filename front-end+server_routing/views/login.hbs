@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title> TXExpress </title>
+	<link rel="stylesheet" type="text/css" href="login.css" />
+	</head>
+	<body>
+	<div id = "wrapper">
+		<div id = "login-wrapper">
+			<div id = "title">
+				<div id = "TXE">
+					<h1>TXE</h1>
+				</div>
+			</div>
+			<div id = "login-box">
+				<div id = "incorrect-login">
+					<h1>{{response}}</h1>
+				</div>
+				<form method = "POST" action = "/login"/>
+					<div id = "login-text">
+					<h1>Username: <input type = "text" id = "username" name = "username" autofocus autocomplete= "off" /></h1>
+					<h1>Password: <input type = "password" id = "password" name = "password" autocomplete= "off" /></h1>
+					<input type = "submit" id = "submit_button" value = "Log in" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+
+
+	// $(document).ready(function() {
+ //   		$('#submit_button').click(function() {
+ //      	new_room($('#username').val());
+ //    	});
+	// });
+	
+	</script>
+	</body>
+</html>

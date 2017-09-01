@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<style>
+  html { margin: 10; padding: 0; box-sizing: border-box; }
+  body { font: 13px Helvetica, Arial; }
+  form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+  #m { border: 0; padding: 10px; width: 75%; margin-right: .5%; }
+  #f { border: 0; padding: 0; width: 15%; }
+  form button { width: 7%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+  #messages { list-style-type: none; margin: 0; padding: 0; }
+  #messages li { padding: 5px 10px; }
+  #messages li:nth-child(odd) { background: #eee; }
+</style><title>TXE Chat</title>
+</head>
+
+<body>
+
+<ul id="messages"></ul>
+
+
+
+<form id = "messageBox" action="">
+  <input id="m" autocomplete="off" placeholder="type message here..."/>
+  <input id="f" type="file" accept="file-extension"/>
+  
+</form>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="index.js"></script>
+
+<script type="text/javascript">
+
+  var userName = prompt("What's your name?", "Bartholomew");
+
+  var d = new Date();
+  var time = d.getHours() + ":" + d.getMinutes();
+
+  var socket = io();
+  $('#messageBox').submit(function(){
+    socket.emit('chat message', time, userName, $('#m').val());
+    $('#m').val('');
+    return false;
+  });
+
+  socket.on('chat message', function(msg){
+    $('#messages').append($('<li>').text(msg));
+  });
+
+</script>
+
+
+
+
+</body>
+
+</html>

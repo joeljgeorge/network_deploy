@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>TXExpress: Homepage</title>
+		<link rel="stylesheet" type="text/css" href="home_page.css" />
+	</head>
+	<body>
+		<div id = "left_column">
+				<form name = "search" method = "POST" action = "/search">
+					<input type = "text" name = "searchBar" placeholder = "Search"/>
+					<input type = "hidden" name = "stored_user_name" value = '{{name}}'/>  
+					<input type = "hidden" name = "user_name" value = '{{user_name}}'/>
+				</form>
+				<span id = "header_text"><p>Active convos:</p></span>
+				<div id = "no_active_convos_text"><p>{{no_active_convos}}<p></div> <!-- TODO: adjust CSS -->
+				<ul id = "list_text">
+					{{#each active_convos}}
+						<li class = "convo_tab" id = '{{room_name}}'>
+							<button type = "button" class = "active_convo" id = "active_convo_{{room_name}}" name = "active_convo" onclick = "load_room('{{room_name}}', '{{name}}')">{{name}}</button>
+							<div class = "unread_message_alert" id = "alert_{{room_name}}"></div>
+							<input type = "hidden" class = "convo_type" id = "convo_type_{{room_name}}" value = "{{convo_type}}"/> TODO: check for outdated convo_type, time_stamp entries
+							<input type = "hidden" class = "time_stamp" id = "time_stamp_{{room_name}}" value = "{{time_stamp}}"/>
+							<input type = "hidden" class = "room_name" value = "{{room_name}}"/>
+						</li>
+					{{/each}}
+				</ul>
+				
+				<form name = "private_msg" method = "POST" action = "/new_pm">
+				<input type = "hidden" name = "stored_user_name" value = '{{name}}'/>
+					<input type = "submit" name = "pm_button" class = "new_convo_button" id = "pm_button" value = "Private Message"/>
+					<input type = "hidden" name = "user_name" value = "{{user_name}}"/>
+				</form>
+
+				<form name = "group_chat" method = "POST" action = "/gc_creation">
+					<input type = "hidden" name = "stored_user_name" value = '{{name}}'/>
+					<input type = "submit" name = "gc_button" class = "new_convo_button" id = "gc_button" value = "Group Chat"/>
+					<input type = "hidden" name = "user_name" value = "{{user_name}}"/>
+				</form>
+		</div>
+		<div id = "right_column">
+			<div id = "logged_name">
+				<p>Logged in as: <span id = "unique_name">{{name}}</span></p>
+			</div>
+			<div id = "welcome_text"><h1><span id = "name">{{message}}</span>!</h1></div>
+				<div id = "messageView">
+					<ul id = "user_message" style="list-style-type:none"> 
+					</ul> 
+				</div>
+			<form id = "messageField" action = "">
+				<input type = "text" id = "messageBox" name = "messageBox" placeholder = "Type message here" autofocus autocomplete = "off"/>
+			</form>
+		</div>
+
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+		<script type="text/javascript">
+
+		//socket code
+		  var current_room = '{{room}}';
+		  var userName = document.getElementById("unique_name").innerHTML; 
+		  var actual_user_name = '{{user_name}}';
+		  var socketConnected = false;
+		  var recipient = '{{contact}}';
+		  var chat_type;
+
+		  var socket = io();
+		  var convo_id = '{{convo_id}}';
+
+		  socket.on('connect', function(){
+		  	socketConnected = true;
+		  	socket.emit('add_to_array', actual_user_name, socket.io.engine.id);
+		  })
+
+		  $('#messageField').submit(function(){
+		  	if(convo_id){
+		  	console.log('current_room: ' + current_room);
+		  	var old_time_stamp = new Date(parseInt(localStorage.getItem(userName+current_room)));
+		  	let d = new Date();
+		  	console.log(d);
+		  	console.log(old_time_stamp);
+		  	console.log(d - old_time_stamp);
+			let current_hour = d.getHours();
+			let current_minute = d.getMinutes();
+				if(current_minute<10)
+					current_minute = '0'+current_minute;
+				if(current_hour<10)
+					current_hour = '0'+current_hour;
+			let time = current_hour+':'+current_minute;
+			var msg = $('#messageBox').val();
+		    socket.emit('chat message', time, userName, msg, current_room, chat_type, d);
+		    $('#messageBox').val("");
+		    if(d - old_time_stamp > 60000 && chat_type == "private"){
+		    	console.log("pc revived");
+		  		socket.emit('convo_revived', userName, recipient, msg);
+		  	} //TODO: 6 day value: 86400000
+		  	else if(d - old_time_stamp > 60000 && chat_type == "group"){
+		  		console.log("gc revived");
+		  		socket.emit('gc_revived', userName, recipient, msg);
+		  	}
+		    return false;
+		  	}
+		  	else{
+		  		alert("You haven't specified who you want to send the message to!");
+		  		return false;
+		  	}
+		  });
+
+		  socket.on('chat message', function(msg, room, user_name, convo_type, date){
+		  	console.log('room: ' + room);
+		  	console.log('current_room: ' + current_room);
+		  	console.log("convo type: " + convo_type);
+			animate_convo_div(room);
+			localStorage.setItem(userName+room, Date.parse(date));
+		  	if(room == current_room){
+		  		$('#user_message').append($('<li class = "msg">').text(msg));
+			    let ul = document.getElementById("user_message");
+			    let list_items = ul.getElementsByTagName("li");
+			    var msgId = list_items.length -1;
+			    if(list_items[msgId].innerHTML.indexOf(userName)==0){
+			   		list_items[msgId].style.position = "relative";
+			   		list_items[msgId].style.left = "55%";
+			   		list_items[msgId].style.backgroundColor = "skyblue";
+			   	}
+		    	var message = list_items[msgId].innerHTML;
+		    	var indexOfColon = message.indexOf(':', message.indexOf(':')+1);
+		    	var header = message.slice(0, indexOfColon+1);
+		    	var msg_content = message.slice(indexOfColon+1, list_items[msgId].innerHTML.length)
+		    	list_items[msgId].innerHTML = header + "<br />" + "<div id = 'message_content'>" + msg_content + "</div>" ;
+		    	let $display = $('#messageView');
+    		    $display.animate({ scrollTop: $display[0].scrollHeight }, 'fast');
+
+		  	}
+		  	else{
+		  		console.log("alert_"+room);
+		  		document.getElementById("alert_"+room).style.display = "inline";
+		  	}
+		  });
+
+		  socket.on('convo_id', function(id, msg_history){
+		  	convo_id = id;
+		  	console.log(socket.id);
+		  	var i;
+		  	for(i = 0; i < msg_history.length; i++){
+		  		var msg = msg_history[i].sent_from + ', ' + msg_history[i].time_stamp + ": " + msg_history[i].msg_text;
+		  		$('#user_message').append($('<li class = "msg">').text(msg));
+			  	let ul = document.getElementById("user_message");
+			    let list_items = ul.getElementsByTagName("li");
+			    if(list_items[i].innerHTML.indexOf(userName)==0){
+				  	list_items[i].style.position = "relative";
+				  	list_items[i].style.left = "55%";
+				  	list_items[i].style.backgroundColor = "skyblue";
+				}
+			var message = list_items[i].innerHTML;
+		    var indexOfColon = message.indexOf(':', message.indexOf(':')+1);
+		    var header = message.slice(0, indexOfColon+1);
+		    var msg_content = message.slice(indexOfColon+1, list_items[i].innerHTML.length)
+		    list_items[i].innerHTML = header + "<br />" + "<div id = 'message_content'>" + msg_content + "</div>" ;
+		  	}
+		  })
+
+		  socket.on('new_convo', function(name, convo_type, room_name){
+		  	console.log(name);
+		  	create_new_convo_div(name, convo_type, room_name);
+		  })
+
+		  function load_room(room_name, user2){
+		  	chat_type = document.getElementById("convo_type_"+room_name).value;
+		  	console.log("current chat type: " + chat_type);
+		  	document.getElementById("alert_"+room_name).style.display = "none";
+		  	current_room = room_name;
+		  	$(".msg").remove();
+		  	if(chat_type == "private"){
+			  	document.getElementById("name").innerHTML = "Now chatting with " + user2;
+			  	recipient = user2;
+		  	}
+		  	else{
+			  		document.getElementById("name").innerHTML = "Now chatting with group: " + user2;
+			  		recipient = user2;
+		  	}
+
+		  	if(!socketConnected){//to make sure that socket.io.engine.id is only emitted once connection is established
+		  		console.log("jelly!");
+		  		socket.on('connect', function(){
+		  		socketConnected = true;
+		  		socket.emit('load-room', current_room, socket.io.engine.id);
+		  	})
+		  	}
+		  	else
+		  		socket.emit('load-room', current_room, socket.io.engine.id);
+		  }
+
+		  function create_new_convo_div(name, convo_type, room_name){
+		  	var prepend_text = '<li class = "convo_tab" id = "' + room_name + '"><button type = "button" class = "active_convo" id = "active_convo_' + room_name + '" name = "active_convo" onclick = "load_room(' + '\'' + room_name + '\', \'' + name + '\', document.getElementsByName(\'stored_user_name\')[0].value)">' + name + '</button><div class = "unread_message_alert" id = "alert_' + room_name + '" style = "display: none;"></div><input type = "hidden" class = "convo_type" id = "convo_type_' + room_name + '" value = "'+convo_type+'"/>	<input type = "hidden" class = "room_name" value = "' + room_name+ '"/></li>';
+		  	document.getElementById("no_active_convos_text").innerHTML = "";
+		  	$('#list_text').prepend($(prepend_text));
+		  	join_room(room_name);
+		  }
+
+		  function animate_convo_div(user_name){
+		  		var $this = $("[id = '"+user_name+"']");
+		  		var index = $this.index();
+		  		if(index != 0)
+		  		{
+		  			console.log(user_name + ": " + $this.index());
+		  			callback = function() {
+		         	   $this.insertBefore($this.siblings(':eq(0)'));
+		       		};
+   				$this.slideUp(300, callback).slideDown(300);
+		  		}
+		  }
+
+		  function join_room(room){
+		  	console.log('joining room: ' + room);
+		  	socket.emit('join-room', room);
+		  }
+
+		  window.onload = function(){
+		  	if(userName != '{{contact}}'){
+		  		load_room(current_room, recipient);
+		  		$("#list_text").children().each(function(){
+		  			join_room($(this).children(".room_name").val());
+		  			var name = $(this).attr('id');
+		  			if((localStorage.getItem(userName + name) == null || localStorage.getItem(userName + name) < Date.parse($(this).children(".time_stamp").val())) && Date.parse($(this).children(".time_stamp").val()) != -11140255000){
+		  				var alert_id = "alert_"+name;
+		  				document.getElementById(alert_id).style.display = "inline";
+		  			}
+		  			localStorage.setItem(userName+name, Date.parse($(this).children(".time_stamp").val()));//TODO: choose a better place for this
+		  		})
+		  	}
+		  	else{
+		  		$("#list_text").children().each(function(){
+		  			join_room($(this).children(".room_name").val());
+		  			var name = $(this).attr('id');
+		  			if((localStorage.getItem(userName+name) == null || localStorage.getItem(userName+name) < Date.parse($(this).children(".time_stamp").val())) && Date.parse($(this).children(".time_stamp").val()) != -11140255000){
+		  				var alert_id = "alert_"+name;
+		  				document.getElementById(alert_id).style.display = "inline";
+		  			}
+		  			localStorage.setItem(userName+name, Date.parse($(this).children(".time_stamp").val()));
+		  		})
+		  	}
+		  } 
+
+		</script>
+	</body>
+</html>

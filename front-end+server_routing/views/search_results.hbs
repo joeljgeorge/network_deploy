@@ -1,0 +1,121 @@
+<!DOCTYPE html> <!-- TODO: use user_name instead of first_name -->
+<html>
+	<head>
+		<title>TXExpress: Homepage</title>
+		<link rel="stylesheet" type="text/css" href="search_results.css" />
+	</head>
+	<body>
+		<div id = "left_column">
+			<div id = "content">
+				<form name = "search" method = "POST" action = "/search">
+					<input type = "text" name = "searchBar" placeholder = "Search"/>
+					<input type = "hidden" name = "stored_user_name" value = '{{username}}'/>
+					<input type = "hidden" name = "group_chat_or_private_chat" value = "private"/>
+					<input type = "hidden" name = "user_name" value = '{{user_name}}'/>
+				</form>
+				<div id = "list_text">
+					<h1>Groups</h1>
+					<ul class = 'list' id = 'group_list'>
+						{{#each group_items}}
+							<li class = 'group_item'>
+							{{this}}
+							</li>
+						{{/each }}
+					</ul>
+					<h1>Individuals</h1>
+					<ul class = 'list' id = 'individual_list'>
+						{{#each individual_items}}
+							<li class = 'individual_item'>
+							{{this}}
+							</li>
+						{{/each}}
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div id = "right_column">
+			<div id = "logged_name">
+				<p>Logged in as: <span id = "unique_name">{{username}}</span></p>
+			</div>
+			<div id = "search_text"><h1>Search results for: {{search}}</h1></div>
+			<div id = "search_results">
+				<div id = "search_tabs">
+					<ul class="tab">
+		  				<li><a href="javascript:void(0)" class="tablinks active" id = "people" onclick="openTab(event, 'people_tab')">People</a></li>
+		 			    <li><a href="javascript:void(0)" class="tablinks" id = "conversation" onclick="openTab(event, 'conversation_tab')">Conversations</a></li>
+					</ul>
+				</div>
+				<div id = "hits">
+					<div id = "people_tab" class = "tabcontent" style= "display:block">
+						<ul id = "search_people_list" class = "search_list">
+							{{#each search_items_people}}
+								<li id = "search_item_ppl">
+		   							 <img id="profile-picture" src="{{picture}}"/>
+		   							 <form name = "contact_person" id = "contact_person" method = "POST" action = "/contact">
+										<input type = "image" name = "contact_button" id = "contact_button" value = "{{firstName}}" src = "contact.jpg"/> <!-- TODO: implement without using firstName tag-->
+										<input type = "hidden" name = "stored_user_name" id = "stored_user_name"/>
+										<input type = "hidden" name = "contact_user_name" id = "user_id" value = "{{user_name}}" />
+										<input type = "hidden" name = "user_name"/>
+									</form>
+									<a href = "javascript:void(0)" onclick = "expandView('{{user_name}}')"><img title = "See More" class = "expand_button" id="expand_button_{{user_name}}" src = "extended_bio.jpg"/></a>
+		   							 <div id = "search_content_{{user_name}}" class = "search_content">
+										<h3>{{firstName}} {{lastName}}</h3>
+										<p>Branch: {{branch}}</p>
+										<div id = "mini-bio"><p>Mini-Bio: {{mini_bio}}</p></div>
+										<div id = "expandable_content_{{user_name}}" class = "expandable_content">
+											<p>More About Me: {{extended_bio}}</p>
+											<p>Work Experience 1: {{work_experience_1}}</p>
+											<p>Work Experience 2: {{work_experience_2}}</p>
+										</div>
+									</div>
+								</li>
+							{{/each}}
+							<p>{{result}}</p>
+						</ul>
+					</div>
+					<div id = "conversation_tab" class = "tabcontent">
+						<ul id = "search_convo_list" class = "search_list">
+							{{#each search_items_convos}}
+								<li id = "search_item_con">
+								{{this}}
+								</li>
+							{{/each}}
+						</ul>
+					</div>
+				</div>
+			</div>
+
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<script>
+			$(document).ready(function() {
+		   		$('input[name=stored_user_name]').val('{{username}}');
+		   		$('input[name=user_name]').val('{{user_name}}')
+			});
+			function openTab(event, div_name){ //taken from W3school
+				var i, tabcontent, tablinks;
+				tabcontent = document.getElementsByClassName("tabcontent");
+				for(i = 0; i<tabcontent.length; i++){
+					tabcontent[i].style.display = "none";
+				}
+				tablinks = document.getElementsByClassName("tablinks");
+				for(i=0; i<tablinks.length; i++){
+					tablinks[i].className = tablinks[i].className.replace("active", "");
+				}
+				document.getElementById(div_name).style.display = "block";
+				evt.currentTarget.className += "active";
+			};
+			function expandView(u_name){
+				let expanded_div = document.getElementById("expandable_content_"+u_name);
+				if(expanded_div.style.display != "inline"){
+					expanded_div.style.display = "inline";
+					document.getElementById("expand_button_"+u_name).title = "See Less";
+				}
+				else{
+					expanded_div.style.display = "none";
+					document.getElementById("expand_button_"+u_name).title = "See More";
+				}
+			}
+
+		</script>
+	</body>
+</html>
