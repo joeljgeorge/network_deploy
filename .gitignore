@@ -1,7 +1,0 @@
-#ignore packages installed by npm
-node_modules
-front-end+server_routing/package-lock.json
-*~
-
-credentials.js
-
